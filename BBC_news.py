@@ -139,7 +139,7 @@ class BBCNewsReader:
             if articles_read > 0:
                 # Clear the console.
                 os.system('cls')
-                self.print_headlines(headlines)
+                self.print_headlines()
 
             # Get the article index value.
             article = self.get_article_choice()
