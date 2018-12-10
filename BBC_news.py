@@ -1,8 +1,8 @@
 """
 BBC_news_headlines.py
 
-This gets theheadlines from the bbc/news/world site and prints
-them to the console. The user can select an article to get the read the full text.
+Retrieves the headlines from the https://www.bbc.co.uk/news/world site and prints
+them to the console. The user can select an article to see the full text.
 """
 
 from lxml import html
