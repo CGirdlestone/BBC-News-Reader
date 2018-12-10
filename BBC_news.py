@@ -134,19 +134,23 @@ class BBCNewsReader:
 
         # Loop until the user chooses not to continue reading.
         while self.continue_reading():
-            # Check the number of articles read and clear the console
-            # before reprinting the headlines.
+            
+            # Check the number of articles read and clear the console.
+            # Then print the headlines
             if articles_read > 0:
-                # Clear the console.
                 os.system('cls')
                 self.print_headlines()
-
+                
             # Get the article index value.
             article = self.get_article_choice()
 
             # Construct the new html tree based on the user's chosen article.
             new_tree = self.load_new_tree(article)
 
+            # Clear the console and print the headline of the chosen article.
+            os.system('cls')
+            print(self.headlines[article],"\n")
+                        
             # Print the full article.
             self.print_story(new_tree)
 
