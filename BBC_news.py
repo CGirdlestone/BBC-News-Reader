@@ -22,7 +22,7 @@ class BBCNewsReader:
         self.article_links = self.load_article_links()
 
     def get_article_headlines(self):
-        """load the xpaths for the six articles"""
+        """load the headlines for the articles"""
 
         # 'buzzard' article
         self.main_article_xpath = self.bbc_tree.xpath('//div[@class="buzzard-item"]//span[@class="title-link__title-text"]/text()')
@@ -37,7 +37,7 @@ class BBCNewsReader:
 
 
     def load_article_links(self):
-        """load the xpaths for the six article headline links. Text hyperlink
+        """load the xpaths for the article headline links. Text hyperlink
             is extracted and reformatted into single strings which contain the
             article URL. The list of URLs is returned."""
 
