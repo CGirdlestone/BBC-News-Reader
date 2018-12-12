@@ -1,5 +1,6 @@
 ~~ TO DO ~~
 
-(A) 2018/12/10 - make the user input for continued reading more robust to account for erroneous input.
 (B) 2018/12/10 - expand the selection news sources.
-(B) 2018/12/10 - cycle through all news articles and write the article to file along with the date stamp. 
+
+~~ CLOSED ~~
+(B) 2018/12/10 - cycle through all news articles and write the article to file along with the date stamp. 2018-12-12
