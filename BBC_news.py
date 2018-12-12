@@ -1,8 +1,8 @@
 """
-BBC_news_headlines.py
+BBC_news.py
 
-Retrieves the headlines from the https://www.bbc.co.uk/news/world site and prints
-them to the console. The user can select an article to see the full text.
+Retrieves the headlines from the 'https://www.bbc.co.uk/news/world' site and allows
+the retreival of an article's full text.
 """
 
 from lxml import html
@@ -25,15 +25,22 @@ class BBCNewsReader:
         """load the headlines for the articles"""
 
         # 'buzzard' article
-        self.main_article_xpath = self.bbc_tree.xpath('//div[@class="buzzard-item"]//span[@class="title-link__title-text"]/text()')
+        bbc_main_article_xpath = self.bbc_tree.xpath('//div[@class="buzzard-item"]//span[@class="title-link__title-text"]/text()')
 
         # 'pigeon' articles
-        self.pigeon_article_xpaths = self.bbc_tree.xpath('//div[@class="pigeon"]//span[@class="title-link__title-text"]/text()')
+        bbc_pigeon_article_xpaths = self.bbc_tree.xpath('//div[@class="pigeon"]//span[@class="title-link__title-text"]/text()')
 
         # 'macaw articles'
-        self.macaw_article_xpaths = self.bbc_tree.xpath('//div[@class="macaw"]//span[@class="title-link__title-text"]/text()')
+        bbc_macaw_article_xpaths = self.bbc_tree.xpath('//div[@class="macaw"]//span[@class="title-link__title-text"]/text()')
 
-        return self.main_article_xpath + self.pigeon_article_xpaths + self.macaw_article_xpaths
+        # BBC article headlines
+        bbc_headlines = bbc_main_article_xpath + bbc_pigeon_article_xpaths + bbc_macaw_article_xpaths
+
+        # Add all headlines from the various news sources (at present only BBC)
+        all_headlines = bbc_headlines # + others
+
+        # Return all the headlines
+        return all_headlines
 
 
     def load_article_links(self):
@@ -42,126 +49,53 @@ class BBCNewsReader:
             article URL. The list of URLs is returned."""
 
         # main article links
-        self.main_article_links = self.bbc_tree.xpath('//div[@class="buzzard-item"]//a[@class="title-link"]/@href')
+        main_bbc_article_links = self.bbc_tree.xpath('//div[@class="buzzard-item"]//a[@class="title-link"]/@href')
 
         # 'pigeon' articles
-        self.pigeon_article_links = self.bbc_tree.xpath('//div[@class="pigeon"]//a[@class="title-link"]/@href')
+        bbc_pigeon_article_links = self.bbc_tree.xpath('//div[@class="pigeon"]//a[@class="title-link"]/@href')
 
         # 'macaw articles'
-        self.macaw_article_links = self.bbc_tree.xpath('//div[@class="macaw"]//a[@class="title-link"]/@href')
+        bbc_macaw_article_links = self.bbc_tree.xpath('//div[@class="macaw"]//a[@class="title-link"]/@href')
 
-        # Extract the url ending e.g. the "/business/123456789" at the end of an article URL
-        article_links = self.main_article_links + self.pigeon_article_links + self.macaw_article_links
+        # Extract the url ending e.g. the "/business/123456789" at the end of a BBC article URL
+        bbc_article_links = main_bbc_article_links + bbc_pigeon_article_links + bbc_macaw_article_links
 
-        # Reformat and return a list of full article URLs
-        return ["{}{}".format('https://www.bbc.co.uk',link) for link in article_links]
+        # Reformat the BBC article links
+        bbc_links = ["{}{}".format('https://www.bbc.co.uk',link) for link in bbc_article_links]
 
-    def print_headlines(self):
-        """Prints each article's headline text. Takes a list of headlines (strings) as an argument."""
+        # Add all the links from the various news sources (at present only BBC) 
+        all_article_links = bbc_links # + others
 
-        # Opening line
-        print("BBC World News Headlines.\n")
-
-        # Loop through headlines list and prints out the string along with its index + 1
-        for i, headline in enumerate(self.headlines):
-            print("{}: {}".format((i+1),headline))
-
-    def continue_reading(self):
-        """Checks whether the user wants to continue reading. Returns a boolean."""
-        # TO DO - handle spelling mistakes / invalid input better
-
-        # Get user's answer and make it all lower case
-        answer = input("\nContinue reading? Y/N: ").lower()
-
-        # Check whether the user wants to continue or not
-        if answer == 'y' or answer == 'yes':
-            return True
-        elif answer == 'n' or answer == 'no':
-            return False
-
-    def get_article_choice(self):
-        """Gets and returns the article number the user wants to read."""
-        # Intialise the article variable
-        article = 0
-
-        # Loop until a valid integer input has been received
-        while article == 0:
-            article = input("\nWhich article do you want to read?: ")
-            try:
-                article = int(article)
-            except ValueError:
-                print("\nOops! That's not a valid choice.")
-                # Reset the article variable to ensure we stay in the while loop
-                article = 0
-
-        return article - 1
+        # return a list of full article URLs
+        return all_article_links
 
     def load_new_tree(self, article):
-        """Create a new html tree based on the article chosen by the user."""
+        """Create and return a new html tree based on the article chosen by the user."""
 
         article_html = self.article_links[article]
         new_page = requests.get(article_html)
         new_tree = html.fromstring(new_page.content)
         return new_tree
 
-    def print_story(self, tree):
-        """Prints the whole article text."""
+    def get_story(self, tree, index):
+        """Returns the whole article text."""
 
-        # Gets all of the articles paragraphs
+        # Gets all of the articles paragraphs. 
         story_inner_paras = tree.xpath('//div[@class="story-body__inner"]//p')
 
+        # Initalise and set the main body as the headline of the article.
+        article_body = "{}\n".format(self.headlines[index])
+
         # Loops through all of the paragraphs and formats them via textwrap module
-        # to wrap around after 100 characters. All of the paragraphs are then printed.
-        print("\n")
+        # to wrap around after 80 characters. All of the lines in the paragraph
+        # are then appended to the article_body string.
         for para in story_inner_paras:
-            formatted_para = wrap(para.text_content(), 100)
+            formatted_para = wrap(para.text_content(), 80)
             for line in formatted_para:
-                print(line)
-            print("\n")
+                article_body = "{}\n{}".format(article_body, line)
 
-    def read_news(self):
-        """The main application. This gets and shows the current headlinesself.
-            The code steps into a while loop which allows the user to choose
-            the next article to read and displays the full text. This loop
-            continues until the user chooses to not continue reading."""
+            # append a new line at the end of each paragraph.
+            article_body = "{}\n".format(article_body)
 
-        # Print headlines
-        self.print_headlines()
+        return article_body
 
-        # Intialise the article_read to allow screen clearing and headline printing
-        # to occur at the correct time within the main loop.
-        articles_read = 0
-
-        # Loop until the user chooses not to continue reading.
-        while self.continue_reading():
-            
-            # Check the number of articles read and clear the console.
-            # Then print the headlines
-            if articles_read > 0:
-                os.system('cls')
-                self.print_headlines()
-                
-            # Get the article index value.
-            article = self.get_article_choice()
-
-            # Construct the new html tree based on the user's chosen article.
-            new_tree = self.load_new_tree(article)
-
-            # Clear the console and print the headline of the chosen article.
-            os.system('cls')
-            print(self.headlines[article],"\n")
-                        
-            # Print the full article.
-            self.print_story(new_tree)
-
-            # increaase the number of articles read by 1.
-            articles_read += 1
-
-        # The user has finished reading, so close the application.
-        sys.exit()
-
-# Create an instance of BBCNewsReader.
-BBC = BBCNewsReader()
-
-# Get informed!
-BBC.read_news()
