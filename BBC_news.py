@@ -69,46 +69,6 @@ class BBCNewsReader:
         # return a list of full article URLs
         return all_article_links
 
-    def print_headlines(self):
-        """Prints each article's headline text. Takes a list of headlines (strings) as an argument."""
-
-        # Opening line
-        print("News Headlines.\n")
-
-        # Loop through headlines list and prints out the string along with its index + 1
-        for i, headline in enumerate(self.headlines):
-            print("{}: {}".format((i+1),headline))
-
-    def continue_reading(self):
-        """Checks whether the user wants to continue reading. Returns a boolean."""
-        # TO DO - handle spelling mistakes / invalid input better
-
-        # Get user's answer and make it all lower case
-        answer = input("\nContinue reading? Y/N: ").lower()
-
-        # Check whether the user wants to continue or not
-        if answer == 'y' or answer == 'yes':
-            return True
-        elif answer == 'n' or answer == 'no':
-            return False
-
-    def get_article_choice(self):
-        """Gets and returns the article number the user wants to read."""
-        # Intialise the article variable
-        article = 0
-
-        # Loop until a valid integer input has been received
-        while article == 0:
-            article = input("\nWhich article do you want to read?: ")
-            try:
-                article = int(article)
-            except ValueError:
-                print("\nOops! That's not a valid choice.")
-                # Reset the article variable to ensure we stay in the while loop
-                article = 0
-
-        return article - 1
-
     def load_new_tree(self, article):
         """Create and return a new html tree based on the article chosen by the user."""
 
