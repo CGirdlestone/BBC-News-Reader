@@ -1,15 +1,54 @@
 """
 BBC News Reader App
 
-This is the GUI for the BBC news reader app.
+This is the GUI for the BBC news reader app. A window is created to display
+the twelve headlines from the BUZZARD, PIGEON and MACAW classes from the BBC
+World News page. When an article is selected, a new window opens and shows
+the full article text and gives the user the option to save the article text.
 """
 
 import tkinter as tk
 from datetime import date
 
 class Application(tk.Frame):
+    """Create the GUI for the news reader.
+
+    Methods:
+    create_widgets = create all toplevel widgets
+    leave = create a quit button
+    save_widget = create a save button
+    save_article = create a file and save the article text
+    headline_buttons = create the headline buttons
+    create_article_window = create a new window for the article text
+    create_article_widgets = create the new article window widgets
+    open_article = open the article to get the text
+
+    Instance Variables:
+    root = the main tkinter instance
+    news_reader = the news reader class instance
+    quit_button = a quit button to close the parent window
+    save_button = a save button to save the displayed article text
+    headline_buttons = a list of headline buttons
+    headline = the headline of the displayed article
+    article_body = the full text of the displayed article
+    window = a window to display the article text
+    article_frame = the frame to hold the article text widget and the scrollbar
+    article_scrollbar = the scrollbar for the text widget
+    article = the article text widget
+
+    A window containing buttons displaying BBC World News headlines is
+    displayed. Clicking on a button will open a second window which displays
+    all of the article's text and gives the user the choice to save the full
+    text.
+    """
 
     def __init__(self, news_reader):
+        """Initialise the instance variables.
+
+        Create the main tkinter instance, set the window title and geometry.
+        Load the news_reader and create the toplevel widgets.
+        """
+
         # Initialise main window
         self.root=tk.Tk()
         tk.Frame.__init__(self, self.root)
@@ -23,8 +62,7 @@ class Application(tk.Frame):
         self.create_widgets()
 
     def create_widgets(self):
-        """Creates the buttons linking to each article and a generic
-            'quit' button."""
+        """Creates the buttons linking to each article and a 'quit' button."""
         self.headline_buttons()
         self.leave(self.root)
 
@@ -39,8 +77,13 @@ class Application(tk.Frame):
         self.save_button.pack(fill=tk.BOTH, side=tk.TOP)
 
     def save_article(self):
-        """Method to save the current article as a text file, including the
-            date when the file was saved."""
+        """Saves the current article as a text file.
+
+        The current date is obtained and a filename is constructed of the form
+        YYYYMMDD-headline where all single and double quotes are stripped from
+        the headline. A new file created with this filename and the text of the
+        article is written along with the date the article was saved.
+        """
         # Set today's date
         today=str(date.today())
 
@@ -56,8 +99,10 @@ class Application(tk.Frame):
             f.write(self.article_body)
 
     def headline_buttons(self):
-        """Create buttons for each headline. Each button is given the command
-            to open the headline's article."""
+        """Create buttons for each headline.
+
+        Each button is given the command to open the headline's article.
+        """
         # Create the headline buttons. 'headline = headline' is used to ensure
         # the button refers to the correct headline and not only the final one.
         self.buttons=([tk.Button(self.root, text=headline,
@@ -69,8 +114,11 @@ class Application(tk.Frame):
             button.pack(fill=tk.BOTH, expand=1, padx=2, pady=2)
 
     def create_article_window(self, headline):
-        """Creates a new window for the article body and a frame to house the
-            text and scrollbar."""
+        """Creates a new window and frame for the text widget and scrollbar.
+
+        Keyword arguments:
+        headline = the string containing the article headline.
+        """
         # Assign the headline - used in the save_article method
         self.headline=headline
 
@@ -83,7 +131,11 @@ class Application(tk.Frame):
         self.article_frame.pack(fill=tk.BOTH, side=tk.TOP)
 
     def create_article_widgets(self, article_body):
-        """Creates the widgets required in the article window."""
+        """Creates the widgets required in the article window.
+
+        Keyword arguments:
+        article_body = the string containing the whole article text.
+        """
         # Creates the scrollbar widget in the article frame.
         self.article_scrollbar=tk.Scrollbar(self.article_frame)
         self.article_scrollbar.pack(fill=tk.Y, side=tk.RIGHT)
@@ -103,9 +155,15 @@ class Application(tk.Frame):
         self.leave(self.window)
 
     def open_article(self, article_headline):
-        """Gets the body of text for the article. The article headline is
-            required to allow the BBCNewsReader's load_new_tree method to be
-            called"""
+        """Gets the body of text for the article.
+
+        Keyword arguments:
+        article_headline = article headline string
+
+        The index of the article headline is used to get the new html tree which
+        is then used to get the full article text. A new article window and
+        the associated widgets are then created.
+        """
         # loop through the headlines until the correct article is found, then
         # get the new html tree and get the main body of text for the correct
         # article.
