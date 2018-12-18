@@ -60,6 +60,7 @@ class Application(tk.Frame):
         # Assign the news reader.
         self.news_reader=news_reader
         self.create_widgets()
+        self.article_window = Article(news_reader, self)
 
     def create_widgets(self):
         """Creates the buttons linking to each article and a 'quit' button."""
@@ -71,33 +72,6 @@ class Application(tk.Frame):
         self.quit_button=tk.Button(window, text="Quit", command=window.destroy)
         self.quit_button.pack(fill=tk.BOTH, side=tk.BOTTOM)
 
-    def save_widget(self):
-        """Save button widget. Calls the 'save_article' method."""
-        self.save_button=tk.Button(self.window, text="Save", command=lambda:self.save_article())
-        self.save_button.pack(fill=tk.BOTH, side=tk.TOP)
-
-    def save_article(self):
-        """Saves the current article as a text file.
-
-        The current date is obtained and a filename is constructed of the form
-        YYYYMMDD-headline where all single and double quotes are stripped from
-        the headline. A new file created with this filename and the text of the
-        article is written along with the date the article was saved.
-        """
-        # Set today's date
-        today=str(date.today())
-
-        # Strip any double or single quotes from the headlines
-        self.headline.strip(["'",'"'])
-
-        # Create a file with filename 'YYYYMMDD-headline'.
-        filename='{}-{}.txt'.format(today.replace('-',''),self.headline)
-
-        # Write the date and article to the file.
-        with open(filename,'a+') as f:
-            f.write('Date saved: {}\n'.format(today))
-            f.write(self.article_body)
-
     def headline_buttons(self):
         """Create buttons for each headline.
 
@@ -106,12 +80,19 @@ class Application(tk.Frame):
         # Create the headline buttons. 'headline = headline' is used to ensure
         # the button refers to the correct headline and not only the final one.
         self.buttons=([tk.Button(self.root, text=headline,
-                command=lambda headline=headline: self.open_article(headline))
-                for headline in self.news_reader.headlines])
+            command=lambda headline=headline:
+            self.article_window.open_article(headline))
+            for headline in self.news_reader.headlines])
 
         # Loop through the buttons and pack them.
         for button in self.buttons:
             button.pack(fill=tk.BOTH, expand=1, padx=2, pady=2)
+
+class Article:
+
+    def __init__(self, news_reader, main):
+        self.news_reader = news_reader
+        self.main = main
 
     def create_article_window(self, headline):
         """Creates a new window and frame for the text widget and scrollbar.
@@ -123,7 +104,7 @@ class Application(tk.Frame):
         self.headline=headline
 
         # Create new toplevel window
-        self.window=tk.Toplevel(self.root)
+        self.window=tk.Toplevel()
         self.window.title(headline)
 
         # Create a frame which will house the text and scrollbar widgets.
@@ -152,7 +133,7 @@ class Application(tk.Frame):
 
         # Create save and quit widgets
         self.save_widget()
-        self.leave(self.window)
+        self.main.leave(self.window)
 
     def open_article(self, article_headline):
         """Gets the body of text for the article.
@@ -177,3 +158,31 @@ class Application(tk.Frame):
 
         # Create all article window widgets.
         self.create_article_widgets(self.article_body)
+
+    def save_widget(self):
+        """Save button widget. Calls the 'save_article' method."""
+        self.save_button=tk.Button(self.window, text="Save", command=lambda:self.save_article())
+        self.save_button.pack(fill=tk.BOTH, side=tk.TOP)
+
+    def save_article(self):
+        """Saves the current article as a text file.
+
+        The current date is obtained and a filename is constructed of the form
+        YYYYMMDD-headline where all single and double quotes are stripped from
+        the headline. A new file created with this filename and the text of the
+        article is written along with the date the article was saved.
+        """
+        # Set today's date
+        today=str(date.today())
+
+        # Strip any double or single quotes from the headlines
+        self.headline.strip("\'")
+        self.headline.strip('\"')
+
+        # Create a file with filename 'YYYYMMDD-headline'.
+        filename='{}-{}.txt'.format(today.replace('-',''),self.headline)
+
+        # Write the date and article to the file.
+        with open(filename,'a+') as f:
+            f.write('Date saved: {}\n'.format(today))
+            f.write(self.article_body)
